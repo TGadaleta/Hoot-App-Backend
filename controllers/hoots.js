@@ -82,6 +82,19 @@ router.put("/:id", verifyToken, async (req, res) => {
   }
 });
 
+router.put('/:id/comments/:commentId', verifyToken, async (req,res) => {
+  try {
+    
+    const hoot = await Hoot.findById(req.params.id);
+    const comment = hoot.comments.id(req.params.commentId);
+    comment.text = req.body.text;
+    await hoot.save();
+    res.status(200).json(comment);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+})
+
 router.delete("/:id", verifyToken, async (req, res) => {
   try {
     const hoot = await Hoot.findById(req.params.id);
@@ -96,5 +109,22 @@ router.delete("/:id", verifyToken, async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+router.delete("/:id/comments/:commentId", verifyToken, async (req, res) => {
+  try {
+    
+    const hoot = await Hoot.findById(req.params.id);
+    const comment = hoot.comments.id(req.params.commentId);
+
+    if(!comment.author.equals(req.user._id)){
+      return res.status(403).send("You're not allowed to do that!");
+    }
+    hoot.comments.remove({_id: comment._id })
+    await hoot.save()
+    res.status(200).json({ message: 'Comment deleted' })
+  } catch (error) {
+    res.status(500).json(error)
+  }
+})
 
 export default router;
