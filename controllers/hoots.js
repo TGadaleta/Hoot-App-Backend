@@ -119,9 +119,9 @@ router.delete("/:id/comments/:commentId", verifyToken, async (req, res) => {
     if(!comment.author.equals(req.user._id)){
       return res.status(403).send("You're not allowed to do that!");
     }
-    hoot.comments.remove({_id: comment._id })
+    const deletedComment = hoot.comments.remove({_id: comment._id })
     await hoot.save()
-    res.status(200).json({ message: 'Comment deleted' })
+    res.status(200).json(deletedComment)
   } catch (error) {
     res.status(500).json(error)
   }
